@@ -402,9 +402,12 @@ class ImageLinkCollection(QWidget):
 class ColorPicker(QWidget):
     clicked = pyqtSignal(int)
 
-    def __init__(self, num_colors, color_palette: bytes, *args, **kwargs) -> None:
+    def __init__(self, num_colors, color_palette: bytes, object_labels, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.num_colors = num_colors
+
+        if object_labels is not None and len(object_labels) != num_colors:
+            raise ValueError(f"Number of object labels ({len(object_labels)}) must match number of colors ({num_colors}).")
 
         self.outer_layout = QVBoxLayout(self)
         self.outer_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -412,30 +415,31 @@ class ColorPicker(QWidget):
         self.inner_layout = QGridLayout()  # 2 x N/2
         # self.inner_layout_wrapper = QHBoxLayout()
         self.inner_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.inner_layout.setSpacing(0)
         self.palette = color_palette
         self.previously_selected = None
 
         for i in range(self.num_colors):
             index = i + 1
 
-            color_widget = ClickableLabel(str(index))
+            color_widget = ClickableLabel(f'{index:2d}:{object_labels[i]}') if object_labels is not None else ClickableLabel(f'{index:2d}')
 
             color = self.palette[index * 3: index*3 + 3] 
 
-            color_widget.setStyleSheet(f"QLabel {{font-family: Monospace; color:white; font-weight: 900; background-color: rgb{tuple(color)}}} QLabel.selected {{border: 4px solid}}")
-            color_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            color_widget.setStyleSheet(f"QLabel {{font-family: Monospace; color:white; font-weight: 700; background-color: rgb{tuple(color)}; border: 2px solid; border-color:white}} QLabel.selected {{border-color: black}}")
+            color_widget.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
-            color_widget.setFixedSize(40, 40)
-            self.inner_layout.addWidget(color_widget, int(i / 2), i % 2)
+            color_widget.setFixedSize(160, 22)
+            self.inner_layout.addWidget(color_widget, i, 0)
 
             color_widget.clicked.connect(partial(self._on_color_clicked, index))
 
         color_picker_name = QLabel("Object selector")
         color_picker_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        color_picker_name.setStyleSheet("QLabel {font-family: Monospace; font-weight: 900}")
+        color_picker_name.setStyleSheet("QLabel {font-family: Monospace; font-weight: 700}")
 
         num_objects_label = QLabel(f"({self.num_colors} objects)")
-        num_objects_label.setStyleSheet("QLabel {font-family: Monospace; font-weight: 900}")
+        num_objects_label.setStyleSheet("QLabel {font-family: Monospace; font-weight: 700}")
         num_objects_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         

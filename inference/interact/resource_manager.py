@@ -75,7 +75,8 @@ class ResourceManager:
         self.references = set()
         self._num_objects = None
         self._try_load_info()
-
+        if config['object_labels'] is not None:  # forced overwrite from user
+            self._object_labels = config['object_labels']
         if config['num_objects'] is not None:  # forced overwrite from user
             self._num_objects = config['num_objects']
         elif self._num_objects is None:  # both are None, single object first run use case
@@ -207,7 +208,7 @@ class ResourceManager:
         p_workspace_subdir = Path(self.workspace_info_file).parent
         p_workspace_subdir.mkdir(parents=True, exist_ok=True)
         with open(self.workspace_info_file, 'wt') as f:
-            data = {'references': sorted(self.references), 'num_objects': self._num_objects}
+            data = {'references': sorted(self.references), 'num_objects': self._num_objects, 'object_labels': self._object_labels}
 
             json.dump(data, f, indent=4)
 
@@ -216,7 +217,7 @@ class ResourceManager:
             with open(self.workspace_info_file) as f:
                 data = json.load(f)
                 self._num_objects = data['num_objects']
-
+                self._object_labels = data['object_labels']
                 # We might have num_objects, but not references if imported the project
                 self.references = set(data['references'])
         except Exception:
@@ -333,3 +334,7 @@ class ResourceManager:
     @property
     def num_objects(self):
         return self._num_objects
+
+    @property
+    def object_labels(self):
+        return self._object_labels

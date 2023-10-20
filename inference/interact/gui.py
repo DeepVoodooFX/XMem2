@@ -283,7 +283,7 @@ class App(QWidget):
         navi.addWidget(self.backward_run_button)
 
         # Drawing area, main canvas and minimap
-        self.color_picker = ColorPicker(self.num_objects, davis_palette)
+        self.color_picker = ColorPicker(self.num_objects, davis_palette, config['object_labels'])
         self.color_picker.clicked.connect(self.hit_number_key)
         draw_area = QHBoxLayout()
         draw_area.addWidget(self.color_picker)

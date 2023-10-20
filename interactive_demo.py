@@ -47,6 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('--buffer_size', help='Correlate with CPU memory consumption', type=int, default=100)
     
     parser.add_argument('--num_objects', type=int, default=None)
+    parser.add_argument('--object_labels', type=str, default=None)
 
     # Long-memory options
     # Defaults. Some can be changed in the GUI.
@@ -68,6 +69,15 @@ if __name__ == '__main__':
     config['enable_long_term'] = True
     config['enable_long_term_count_usage'] = True
 
+    if config['object_labels'] is not None:
+        object_labels = []
+        for label in config['object_labels'].split(','):
+            label = label.strip()
+            if label not in object_labels:
+                object_labels.append(label)
+        config['object_labels'] = object_labels
+        config['num_objects'] = len(object_labels)
+
     with torch.cuda.amp.autocast(enabled=not args.no_amp):
 
         # Load our checkpoint
@@ -86,6 +96,8 @@ if __name__ == '__main__':
         resource_manager = ResourceManager(config)
         num_objects = resource_manager.num_objects
         config['num_objects'] = num_objects
+        object_labels = resource_manager.object_labels
+        config['object_labels'] = object_labels
 
         s2m_controller = S2MController(s2m_model, num_objects, ignore_class=255)
         if args.fbrs_model is not None:
