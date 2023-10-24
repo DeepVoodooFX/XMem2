@@ -77,6 +77,8 @@ class ResourceManager:
         self._try_load_info()
         if config['object_labels'] is not None:  # forced overwrite from user
             self._object_labels = config['object_labels']
+        else:
+            self._object_labels = None
         if config['num_objects'] is not None:  # forced overwrite from user
             self._num_objects = config['num_objects']
         elif self._num_objects is None:  # both are None, single object first run use case
